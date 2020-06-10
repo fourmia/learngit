@@ -10,7 +10,7 @@ from Dataprocess import ecmwf, Znwg, interp
 import pygrib
 from cma.cimiss.DataQueryClient import DataQuery
 # tiff处理
-from osgeo import gdal, osr
+#from osgeo import gdal, osr
 
 
 #@interceptarea(region=(110.21, 31.23, 116.39, 36.22))
@@ -20,11 +20,12 @@ def micapsdata(ectime, dic, fh, IP="10.69.72.112", port=8080):
     :param dir: 待获取的数据要素目录，如 'ECMWF_HR/TMP_2M'
     :param fh: 要获取的数据要素的文件有效数字后缀， 如‘3’,'6', '9'......
     :return:  不激活装饰器，返回不经任何处理的M4原始数据
-               激活装饰器，返回指定范围的数据，程序运行过慢
+               激活装饰器，返回指定范围的
     """
     it = dt.datetime.strptime(ectime, '%Y%m%d%H%M')   # 获取特定时间文件
     t0 = dt.datetime.strftime(it, '%y%m%d%H')
     fnames = [t0 + '.%03d' % i for i in fh]
+    print('fnames:{}'.format(fnames))
     # nd  = np.array([])
     nds = []
     fts = []
@@ -37,7 +38,6 @@ def micapsdata(ectime, dic, fh, IP="10.69.72.112", port=8080):
         MappingResult.ParseFromString(response)
         results = MappingResult.resultMap
         names = [name for name,_ in results.items()]
-        # names = (name for name,_ in results.items())
         # print('++'*10)
         # print(results)
         # print(names)
@@ -63,12 +63,18 @@ def micapsdata(ectime, dic, fh, IP="10.69.72.112", port=8080):
     print(all_times)
     print('*' * 10 + 'fts' + '*' * 10)
     print(fts)
+  
     for t in all_times:                               # 所需的所有时间
-        if t in fts and i < len(all_times)-1:                                  # 目前有的时间
+        if t in fts and i < len(all_times)-1:
+            print(t)                                  # 目前有的时间
             new_nds.append(nds[i])
             i = i + 1
-        else:                                         # 逐六中间缺少的逐三
-            #new_nds.append(nds[i+1]/2)
+        elif len(all_times) ==1:
+            new_nds.append(nds[i])
+
+        else:   
+            #if i < len(all_times) - 2 :                                      # 逐六中间缺少的逐三
+                #new_nds.append(nds[i+1]/2)
             new_nds.append(np.full(nd.shape, np.nan))
     new_nds = np.concatenate(new_nds, axis=0)
     print('*'*10 + 'New_nds shape' +'*'*10)
@@ -119,7 +125,6 @@ def cimissdata(interfaceId, *args, **kwargs):
     print(df.columns)
     print(df.dtypes)
     # df[df.columns[8:-1]] = df[df.columns[1:-1]].astype('float')
-    # print(df.datetimeypes)
     if df.empty and result.request.errorCode != -1:
         errorC = result.request.errorCode
         errorM = result.request.errorMessage
@@ -146,10 +151,9 @@ class GribData(object):
         '''
         pass
 
-
     def mirror(self, element, remote_url, localdir, freq, *args):
         """
-        从服务器上同步数据,此处存在问题
+        从服务器上同步数据
         :param element: 需获取的元素名称 eg：ER03、TMAX
         :param path: 远程服务器下文件的路径信息，用以构造remote_url
         :param localdir: 本机用来存放同步的grib文件目录
@@ -157,8 +161,13 @@ class GribData(object):
         :param args: 服务器名称、用户名、密码
         :return:
         """
+        print(localdir)
+        print(222222222222222222222)
+        print(freq)
+        print(args[0][0])
+        print(1111111111111111111111111111111)
         ftp_url, user, password = args[0]
-        print(ftp_url, user, password)
+        #print(ftp_url, user, password)
         initnal_time = Znwg.znwgtime()
         print(initnal_time)
         if freq:

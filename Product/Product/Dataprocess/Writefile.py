@@ -29,12 +29,18 @@ def write_to_nc(path, data, lat, lon, name, fnames, filetime):
     print(cirnum)
     for i in range(cirnum):
         ds = xr.Dataset({name: (['lat', 'lon'], data[i])}, coords={'lat': lat, 'lon': lon})
-        f = ''.join([path, name, filetime, fnames[i], '.nc'])
+        f = ''.join([path, filetime, '.', fnames[i], '.', name, '.nc'])
         ds.to_netcdf(f, format='NETCDF3_CLASSIC')
 
 
 def write_to_csv(path, data, name, fnames, filetime):
+    # 此处需添加road文件
     cirnum = len(data)
+    # 读取road文件合并
+    road = pd.read_csv(glovar.roadpath, index_col=0)
     for i in range(cirnum):
-        allpath = path + name + '_' + filetime + fnames[i] + '.csv'
-        np.savetxt(allpath, data[i], delimiter=',', fmt='%d')
+        # allpath = path + name + '_' + filetime + fnames[i] + '.csv'
+        allpath = path + filetime + '.' + fnames[i] + '.' + name + '.csv'
+        df = pd.concat([road, pd.DataFrame(data[i], columns=name, dtype=np.int8)])
+        #　np.savetxt(allpath, df, delimiter=',', fmt='%d')
+        df.to_csv(allpath)

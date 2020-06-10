@@ -55,7 +55,7 @@ def reverse(dataset):
     Writefile.write_to_nc(savepath, minvalue, glovar.lat, glovar.lon, 'minskint', glovar.fnames, glovar.filetime)
     return maxvalue, minvalue                         # 返回地表最高、最低温度
 
-
+    '''
     for i in range(56):
         temp = [data.reshape(-1, 1) for data in dataset[i]]  # 仅包含基础要素
         # newdataset = np.concatenate([temp, snowdepth, saltedata], axis=1)
@@ -70,9 +70,10 @@ def reverse(dataset):
         alldata.append(sdgrid)
 
     return alldata  # 返回 [56, 801, 1381]网格数据
-
+    '''
 def main():
-    pass
+    message = skintData()
+    reverse(message)
 
 
 if __name__ == "__main__":
